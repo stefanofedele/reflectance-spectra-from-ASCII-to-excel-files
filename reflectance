@@ -1,0 +1,71 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Sep 21 16:47:39 2015
+
+@author: fedel_000
+"""
+
+import os
+#import matplotlib.pyplot as plt
+import pandas as pd
+#import numpy as np
+angle = '40'
+path = "C:\Users\\fedel_000\Desktop\Measurements\Reflectance_09_24_angle_resolved\\" + angle + "degrees"+"\\"
+#path.replace('\f', '\\f')
+
+ListFile = os.listdir(path)
+a = [str(j) + '   ' + ListFile[j] for j in range(len(ListFile))]
+Path = []
+rawData = {}
+
+
+
+for j in range(len(a)):
+    print a[j][:-4]
+    Path = Path + [path + ListFile[j]]
+    rawData[ ListFile[j][:-4] ] = pd.read_csv(Path[j], sep=',', header=None)[1].astype(float)
+
+
+j = 0
+wavelength = pd.read_csv(Path[j], sep=',', header=None)[0].astype(float)
+
+
+#j = 0   
+k = 1
+data = {}
+data['wavelength (nm)'] = wavelength
+
+background = {}
+L = 0
+for L in range(3):
+    background[ ListFile[ L ][:-4]] = rawData[ ListFile[L][:-4] ]
+    for k in range(1, 4):
+        M = L + 3*k
+        rawData[ListFile[ M ][:-4]]
+        data[ListFile[ M ][:-4]] = rawData[ListFile[ M ][:-4]] / background[ ListFile[ L ][:-4]]
+        #line, = plt.plot(data['wavelength (nm)'], data[ListFile[ M ][:-4]], label=ListFile[ M ][:-4])
+        #plt.legend(loc=3)
+        print ListFile[ M ][:-4]
+    
+
+#for k in range(1, 4):
+#    for j in range(4):
+#        L = (k - 1) + 3*j
+#        print L
+#        data[ ListFile[ L ][:-4] ] = rawData[ ListFile[ L ][:-4] ] / rawData[ ListFile[j][:-4] ]
+#        line, = plt.plot(wavelength, data[ ListFile[ L ][:-4] ], label=ListFile[ L ][:-4])
+        #plt.legend(loc='upper right')
+        #plt.x_lim(400, 2000)
+
+
+
+df = pd.DataFrame(data)
+     
+#pathDesktop = "C:\Users\\fedel_000\Desktop\Reflectance_09_21_angle_resolved"
+pathDesktop = "C:\Users\\fedel_000\Desktop\Measurements\Reflectance_09_24_angle_resolved"
+os.chdir(pathDesktop)
+writer = pd.ExcelWriter('uvVisAngle' + angle + '.xlsx', engine='xlsxwriter')
+df.to_excel(writer, sheet_name='angle' + angle )
+#df1.to_excel(writer, sheet_name='sheet2')
+writer.save()
+writer.close()
